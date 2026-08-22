@@ -1,0 +1,36 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+coverage_html/
+.coverage
+*.egg-info/
+
+# Tests — not needed in production image
+tests/
+
+# Dev files
+requirements-dev.txt
+pytest.ini
+.flake8
+
+# Git
+.git/
+.gitignore
+
+# Kubernetes and Harness configs
+k8s/
+harness/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs
+*.md
