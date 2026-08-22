@@ -1,0 +1,22 @@
+{
+  "version": "1.0",
+  "description": "Golden dataset for AIOps intent classifier regression testing",
+  "minimum_accuracy": 0.80,
+  "test_cases": [
+    {"query": "show me cpu usage",              "expected_intent": "metrics"},
+    {"query": "what is the memory utilization", "expected_intent": "metrics"},
+    {"query": "check disk space on node",       "expected_intent": "metrics"},
+    {"query": "network bandwidth usage",        "expected_intent": "metrics"},
+    {"query": "pod cpu is spiking",             "expected_intent": "metrics"},
+    {"query": "restart the nginx pod",          "expected_intent": "remediation"},
+    {"query": "scale up to 5 replicas",         "expected_intent": "remediation"},
+    {"query": "rollback the deployment",        "expected_intent": "remediation"},
+    {"query": "delete the failed pod",          "expected_intent": "remediation"},
+    {"query": "show me recent error logs",      "expected_intent": "logs"},
+    {"query": "tail application logs",          "expected_intent": "logs"},
+    {"query": "find exceptions in logs",        "expected_intent": "logs"},
+    {"query": "is the service healthy",         "expected_intent": "health"},
+    {"query": "check if deployment is ready",   "expected_intent": "health"},
+    {"query": "pod status check",               "expected_intent": "health"}
+  ]
+}
