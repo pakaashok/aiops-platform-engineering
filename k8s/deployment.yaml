@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aiops-assistant
+  namespace: aiops
+  labels:
+    app:                          aiops-assistant
+    version:                      "1.0.0"
+    app.kubernetes.io/managed-by: harness
+spec:
+  # Start with 2 replicas — HPA will take over from here
+  replicas: 2
+  selector:
+    matchLabels:
+      app: aiops-assistant
+  # Rolling update — zero downtime deployments
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge:        1   # Allow 1 extra pod during update
+      maxUnavailable:  0   # Never kill pods before new ones are ready
+  template:
+    metadata:
+      labels:
+        app:     aiops-assistant
+        version: "1.0.0"
+    spec:
+      # Security context — never run as root
+      securityContext:
+        runAsNonRoot: true
+        runAsUser:    1001
+        fsGroup:      1001
+
+      containers:
+        - name:  aiops-assistant
+          image: aiops-assistant:latest
+          # Never pull from registry — use local Minikube image
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+              name:          http
+              protocol:      TCP
+
+          # Load config from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: aiops-config
+
+          # Resource requests and limits
+          # requests — what Kubernetes reserves on the node
+          # limits   — hard ceiling, pod is killed if exceeded
+          resources:
+            requests:
+              cpu:    "100m"    # 0.1 CPU core
+              memory: "128Mi"   # 128 megabytes
+            limits:
+              cpu:    "500m"    # 0.5 CPU core
+              memory: "256Mi"   # 256 megabytes
+
+          # Liveness probe — restart pod if this fails
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds:       10
+            failureThreshold:    3
+            timeoutSeconds:      5
+
+          # Readiness probe — remove from load balancer if this fails
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds:       5
+            failureThreshold:    3
+            timeoutSeconds:      5
+
+          # Startup probe — extra time for initial startup
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: 8000
+            failureThreshold: 30    # 30 x 2s = 60 seconds max
+            periodSeconds:    2
+
+      terminationGracePeriodSeconds: 30
